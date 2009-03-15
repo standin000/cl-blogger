@@ -78,7 +78,7 @@ Restarts:
 
 ** 取得
 
-最新バージョンを darcs で取得します。
+最新バージョンを Subversion で取得します。
 dot.blogger.lisp を ~/.blogger.lisp にコピーします。
 
 <example>

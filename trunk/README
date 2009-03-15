@@ -84,7 +84,7 @@ dot.blogger.lisp を ~/.blogger.lisp にコピーします。
 <example>
 $ mkdir ~/lisp
 $ cd ~/lisp
-$ darcs get http://li31-15.members.linode.com/darcs/blogger
+$ svn checkout http://cl-blogger.googlecode.com/svn/trunk/ blogger
 $ cd blogger
 $ cp dot.blogger.lisp ~/.blogger.lisp
 </example>

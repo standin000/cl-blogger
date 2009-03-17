@@ -88,21 +88,27 @@
     (print res)
     (setf (latest-entry blogger) (s-xml:parse-xml-string res))))
 
-(defmethod post-entry ((blogger blogger) title contents)
+(defmethod prepare-entry ((blogger blogger) labels title contents)
+  (with-output-to-string (result)
+    (format result "<entry xmlns='http://www.w3.org/2005/Atom'>~%")
+    (dolist (label labels) 
+      (format result "<category scheme='http://www.blogger.com/atom/ns#' term='~a'/>~%" label))
+    (format result "<title type='text'>~a</title>
+<content type='xhtml'>~a</content>~%<author>~%<name>~a</name>~%<email>~a</email>
+  </author>~%</entry>" title contents (author blogger) (email blogger))
+    result
+    )
+  )
+
+(defmethod post-entry ((blogger blogger) labels title contents)
   (let*
       ((url (format nil "https://www.blogger.com/feeds/~a/posts/default"
                     (blog-id blogger)))
-       (post-data (format nil "<entry xmlns='http://www.w3.org/2005/Atom'>
-  <title type='text'>~a</title>
-  <content type='xhtml'>~a</content>
-  <author>
-    <name>~a</name>
-    <email>~a</email>
-  </author>
-</entry>" title contents (author blogger) (email blogger))))
+       (post-data (prepare-entry blogger labels title contents)))
     (send-entry blogger url :post post-data)))
 
-(defmethod edit-entry ((blogger blogger) title content)
+(defmethod edit-entry ((blogger blogger) labels title content)
+  (replace-labels blogger labels)
   (replace-title blogger title)
   (replace-content blogger content)
   (let ((post-data (s-xml:print-xml-string (latest-entry blogger ))))
@@ -114,6 +120,17 @@
 (defmethod replace-xml ((blogger blogger) tag text)
   (setf (cdr (find tag (latest-entry blogger) :key #'find-key))
         (list text)))
+
+(defmethod replace-labels ((blogger blogger) labels)
+  (dolist (item (latest-entry blogger))
+    (if (find :|category| (list item) :key #'find-key)
+	(setf (latest-entry blogger) (delete item (latest-entry blogger)))))
+  (dolist (label labels)
+    (setf (cddddr (latest-entry blogger))
+	  (cons (list (append 
+		       '(:|category| :|scheme| "http://www.blogger.com/atom/ns#" :|term|)
+		       (list label)))
+		(cddddr (latest-entry blogger))))))
 
 (defmethod replace-title ((blogger blogger) title)
   (replace-xml blogger :|title| title))
@@ -141,9 +158,9 @@
 (defmethod delete-entry ((blogger blogger))
   (request blogger (edit-href blogger) :method :delete))
 
-
 (defun get-additional-info (muse-file)
-  (let (title post-id)
+  ;; Plato Wu,2009/03/03: Modify to suppost label
+  (let (title post-id labels)
     (with-open-file (in muse-file)
       (loop for l = (read-line in nil nil)
             while l
@@ -153,8 +170,11 @@
                    (or title (setf title ttl)))
                  (register-groups-bind (pstid)
                      ("^; post-id (.+)" l)
-                   (setf post-id pstid)))))
-    (values title post-id)))
+                   (setf post-id pstid))
+		 (register-groups-bind (labelstring)
+                     ("^; *[lL]abels[:：]{0,1} *(.+)" l)
+                   (setf labels (split "[,，]\\s*" labelstring))))))
+    (values title post-id labels)))
 
 (defun html-file (muse-file)
   (let ((file (make-pathname :directory "/tmp"
@@ -196,15 +216,16 @@
 (defun post (muse-file)
   (setf *blogger* (make-instance 'blogger))
   (login *blogger*)
+  ;; Plato Wu,2009/03/12: need use a elegant way to refactory html-file function
   (let ((content (get-content-from-file (html-file muse-file))))
-    (multiple-value-bind (title post-id) (get-additional-info muse-file)
+    (multiple-value-bind (title post-id labels) (get-additional-info muse-file)
       (if post-id
         ;; 修正
         (progn
           (retrive-entry *blogger* post-id)
-          (edit-entry *blogger* title content))
+          (edit-entry *blogger* labels title content))
         ;; 新規
         (progn
-          (post-entry *blogger* title content)
+          (post-entry *blogger* labels title content)
           (add-post-id-to-file muse-file)))))
   *blogger*)

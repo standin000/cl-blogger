@@ -142,11 +142,17 @@ $ cp dot.blogger.lisp ~/.blogger.lisp
 Muse の書式で投稿内容を編集してください。
 
 1行目は "#title" で始めてください。投稿の際にタイトルとして使います。
+
+<literal>; labels: </literal>で始まる行にコンマ区切りでラベルを指定することができます。
 <example>
 #title 題名
 
 投稿内容。。。
+ ; labels: ブログ, Common Lisp
 </example>
+↑ <literal>; labels: </literal>は行頭に記述してください。
+<literal>;</literal>の前にスペースは入れないでください。
+(Muse で example タグの中に ="; "= で始まる行を書くにはどうすればいいんだろう？)
 
 M-x blogger-post で投稿します。
 

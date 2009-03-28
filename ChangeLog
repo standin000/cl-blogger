@@ -1,3 +1,9 @@
+2009-03-28  Yoshinori Tahara  <read.eval.print@gmail.com>
+
+	* blogger.el (muse-blogger-markup-strings): defvar
+	muse-blogger-markup-strings for for various styles.
+	I'd like markup section to h4, subsection to h5...
+
 2009-03-08  Yoshinori Tahara  <read.eval.print@gmail.com>
 
 	* apply path from Plato Wu.

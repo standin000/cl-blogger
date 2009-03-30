@@ -4,6 +4,18 @@
 	muse-blogger-markup-strings for for various styles.
 	I'd like markup section to h4, subsection to h5...
 
+2009-03-23 Plato Wu <standin-000@tianya.cn>
+	
+	* blogger.lisp
+	Use xhtml1.1 to avoid the problem that the Blogger.com request
+	every html tag is symmetry. It is good based on my testing.
+	
+2009-03-17  Plato Wu <standin-000@tianya.cn>
+	
+	* blogger.lisp 
+	Add supporting of label for post. The normal format of label is:
+        ; labels: label1,label2,label3
+
 2009-03-08  Yoshinori Tahara  <read.eval.print@gmail.com>
 
 	* apply path from Plato Wu.

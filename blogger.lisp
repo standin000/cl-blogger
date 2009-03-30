@@ -189,17 +189,18 @@
 (defun get-content-from-file (file)
   (with-output-to-string (out)
     (with-open-file (in file)
-      (loop for line = (read-line in nil nil)
-            with pre-p = nil
-            while line
-            do (progn
-                 (write-string line out)
-                 (cond ((eql 0 (search "<pre" line))
-                        (setf pre-p t))
-                       ((eql 0 (search "</pre>" line))
-                        (setf pre-p nil))
-                       (t
-                        (when pre-p (terpri out)))))))))
+      (loop
+       (multiple-value-bind (line newline pre-p) (read-line in nil nil)
+	 (if (null line) (return))
+	 (write-string line out)
+	 (unless newline
+	   (write-char #\Newline out))
+	 (cond ((eql 0 (search "<pre" line))
+		(setf pre-p t))
+	       ((eql 0 (search "</pre>" line))
+		(setf pre-p nil))
+	       (t
+		(when pre-p (terpri out)))))))))
 
 (defun add-post-id-to-file (muse-file)
   (register-groups-bind (post-id) (".*/(.*)" (edit-href *blogger*))

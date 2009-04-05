@@ -1,3 +1,8 @@
+2009-04-05  Plato Wu  <standin-000@tianya.cn>
+
+	* blogger.el (muse-html-markup-footnote): 
+	redefine it to support multi post's footnote.
+
 2009-03-28  Yoshinori Tahara  <read.eval.print@gmail.com>
 
 	* blogger.el (muse-blogger-markup-strings): defvar

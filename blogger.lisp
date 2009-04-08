@@ -186,21 +186,52 @@
                      :type (format nil "~a.html" (pathname-type muse-file))
                      :defaults muse-file))))
 
+(defun need-space-char-p (char)
+  (not
+   (loop for i in '("CJK" "Hiragana" "Katakana"
+                    "Halfwidth and Fullwidth Forms")
+         with code-block = (cl-unicode:code-block char)
+         thereis (search i code-block))))
+
+(defun need-space-p (current next)
+  (cond ((null next)
+         nil)
+        ((string= next "")
+         nil)
+        ((scan "^<p>" next)
+         nil)
+        ((scan "</p>$" current)
+         nil)
+        ((string= current "")
+         t)
+        ((need-space-char-p (char current (1- (length current))))
+         t)
+        ((need-space-char-p (char next 0))
+         t)))
+
 (defun get-content-from-file (file)
+  "Remove #\Newline.
+We need a #\Newline in pre tag.
+We need a space between lines in English.
+We do not need any space between lines in Japanese."
   (with-output-to-string (out)
     (with-open-file (in file)
-      (loop
-       (multiple-value-bind (line newline pre-p) (read-line in nil nil)
-	 (if (null line) (return))
-	 (write-string line out)
-	 (unless newline
-	   (write-char #\Newline out))
-	 (cond ((eql 0 (search "<pre" line))
-		(setf pre-p t))
-	       ((eql 0 (search "</pre>" line))
-		(setf pre-p nil))
-	       (t
-		(when pre-p (terpri out)))))))))
+      (loop with pre-p = nil
+            for current = (read-line in nil) then next
+            for next = (read-line in nil)
+            while current
+            do (write-string current out)
+            do (cond ((scan "<pre[^>]*>.+$" current)
+                      (setf pre-p t)
+                      (terpri out))
+                     ((eql 0 (search "<pre" current))
+                      (setf pre-p t))
+                     ((eql 0 (search "</pre>" current))
+                      (setf pre-p nil))
+                     (pre-p
+                      (terpri out))
+                     ((need-space-p current next)
+                      (write-string " " out)))))))
 
 (defun add-post-id-to-file (muse-file)
   (register-groups-bind (post-id) (".*/(.*)" (edit-href *blogger*))

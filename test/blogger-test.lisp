@@ -51,6 +51,12 @@ test.</p>
 あ
 い
 </pre><p>おしまい</p>")
-    ))
+
+    (f "<pre>
+<span>aaa</span></pre>
+
+<p>bbb</p>
+"
+   "<pre><span>aaa</span></pre><p>bbb</p>")))
 
 (blogger-test)

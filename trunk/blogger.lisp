@@ -226,7 +226,7 @@ We do not need any space between lines in Japanese."
                       (terpri out))
                      ((eql 0 (search "<pre" current))
                       (setf pre-p t))
-                     ((eql 0 (search "</pre>" current))
+                     ((search "</pre>" current)
                       (setf pre-p nil))
                      (pre-p
                       (terpri out))

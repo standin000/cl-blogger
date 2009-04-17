@@ -1,3 +1,8 @@
+2009-04-17  Yoshinori Tahara  <read.eval.print@gmail.com>
+
+	* blogger.lisp (get-content-from-file):
+	Fixed pre-p when </span></pre>.
+
 2009-04-08  Yoshinori Tahara  <read.eval.print@gmail.com>
 
 	* blogger.lisp (get-content-from-file): Delete changing line, and

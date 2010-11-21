@@ -1,3 +1,8 @@
+2010-11-21  Yoshinori Tahara  <read.eval.print@gmail.com>
+
+	* blogger.lisp (get-additional-info):
+	add escape-string, and escape title.
+
 2009-04-17  Yoshinori Tahara  <read.eval.print@gmail.com>
 
 	* blogger.lisp (get-content-from-file):

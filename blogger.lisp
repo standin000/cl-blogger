@@ -20,6 +20,16 @@
 ;; ネームスペースを使わない
 (setf s-xml:*ignore-namespaces* t)
 
+(defun escape-string (string)
+  (with-output-to-string (out)
+    (loop for c across string
+          do (format out "~a" (case c
+                                (#\& "&amp;")
+                                (#\< "&lt;")
+                                (#\> "&gt;")
+                                (#\" "&quot;")
+                                (t c))))))
+
 (defclass blogger ()
   ((sid :initform nil :accessor sid)
    (lsid :initform nil :accessor lsid)
@@ -167,7 +177,7 @@
             do (progn
                  (register-groups-bind (ttl)
                      ("^#title\\s*(.+)" l)
-                   (or title (setf title ttl)))
+                   (or title (setf title (escape-string ttl))))
                  (register-groups-bind (pstid)
                      ("^; post-id (.+)" l)
                    (setf post-id pstid))
